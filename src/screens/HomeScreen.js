@@ -1,9 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import HolographicOrb from '../components/HolographicOrb';
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
+      <View style={styles.orbContainer}>
+        <HolographicOrb size={280} />
+      </View>
       <Text style={styles.title}>Q-Link</Text>
       <Text style={styles.subtitle}>Verified Humans Only</Text>
       <View style={styles.badge}>
@@ -19,6 +23,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#0a0a0f',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  orbContainer: {
+    marginBottom: 20,
   },
   title: {
     fontSize: 48,
