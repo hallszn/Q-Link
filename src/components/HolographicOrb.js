@@ -1,7 +1,17 @@
 import React, { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { View, StyleSheet, Platform } from 'react-native';
-import * as THREE from 'three';
+import { View, Text, StyleSheet, Platform } from 'react-native';
+
+// Conditionally import Three.js deps (web only)
+let Canvas, useFrame;
+try {
+  if (Platform.OS === 'web') {
+    const fiber = require('@react-three/fiber');
+    Canvas = fiber.Canvas;
+    useFrame = fiber.useFrame;
+  }
+} catch (e) {
+  console.warn('Three.js not available:', e.message);
+}
 
 // Rotating wireframe icosahedron
 function WireframeOrb() {
@@ -54,8 +64,8 @@ function WireframeOrb() {
   );
 }
 
-// Floating particles around the orb
-function Particles({ count = 100 }) {
+// Floating particles
+function Particles({ count = 80 }) {
   const particlesRef = useRef();
   
   const positions = useMemo(() => {
@@ -128,7 +138,7 @@ function OrbitalRings() {
   );
 }
 
-// Main scene
+// Main 3D scene
 function Scene() {
   return (
     <>
@@ -141,10 +151,25 @@ function Scene() {
   );
 }
 
-// Exported component
+// Native fallback component
+function NativeFallback({ size }) {
+  return (
+    <View style={[styles.fallback, { width: size, height: size }]}>
+      <Text style={styles.glyph}>◈</Text>
+      <Text style={styles.label}>Q-Link</Text>
+    </View>
+  );
+}
+
+// Exported component with platform detection
 export default function HolographicOrb({ size = 300 }) {
-  // Check if we're on web or native
   const isWeb = Platform.OS === 'web';
+  const hasThree = Canvas && useFrame;
+
+  // Use native fallback if not web or Three.js unavailable
+  if (!isWeb || !hasThree) {
+    return <NativeFallback size={size} />;
+  }
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
@@ -162,5 +187,26 @@ export default function HolographicOrb({ size = 300 }) {
 const styles = StyleSheet.create({
   container: {
     overflow: 'hidden',
+  },
+  fallback: {
+    backgroundColor: '#0a0a0f',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 150,
+    borderWidth: 2,
+    borderColor: '#00f5ff',
+  },
+  glyph: {
+    fontSize: 80,
+    color: '#00f5ff',
+    textShadowColor: '#00f5ff',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
+  },
+  label: {
+    fontSize: 14,
+    color: '#00f5ff',
+    marginTop: 10,
+    letterSpacing: 2,
   },
 });
